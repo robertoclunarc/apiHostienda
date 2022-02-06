@@ -1,0 +1,12 @@
+./node_modules/
+./dist/
+./.env
+
+app/node_modules/
+app/dist/
+app/src/.env
+
+./app/node_modules/
+./app/dist/
+./app/.env
+./app/src/.env
