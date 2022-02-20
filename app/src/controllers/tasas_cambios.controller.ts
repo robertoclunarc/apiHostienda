@@ -17,6 +17,22 @@ export const SelectREcordAll = async (req: Request, resp: Response) => {
     }
 }
 
+export const ultimaTasa = async (req: Request, resp: Response) => {
+    let moneda=  req.params.idMoneda;
+    let consulta = "SELECT a.* FROM tbtasas_cambios a WHERE a.fechaCambio = (select max(fechaCambio) from tbtasas_cambios) AND a.idMoneda=?";    
+    try {
+        const result: ITasaCambio[] = await db.querySelect(consulta,[moneda]);
+        /*if (result.length <= 0) {
+            return resp.status(402).json({ msg: "No Data!" });
+        }*/
+
+        return resp.status(201).json(result);
+
+    } catch (error) {
+        resp.status(401).json({ err: error });
+    }
+}
+
 export const SelectRecordFilter = async (req: Request, resp: Response) => {
     let consulta = "SELECT a.*, b.* FROM tbtasas_cambios a INNER JOIN tbmonedas b ON a.idMoneda=b.idMoneda";
     let tasa = {

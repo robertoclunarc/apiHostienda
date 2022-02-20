@@ -33,7 +33,7 @@ export const SelectREcordAllDetalles = async (req: Request, resp: Response) => {
 }
 
 export const SelectRecordFilter = async (req: Request, resp: Response) => {
-    let consulta = "SELECT a.*, b.*, c.*, d.*, e.NombresProveedor, e.direccionProveedor, e.estatus as estatusProveedor, s.* FROM tbmateriales_comprados a INNER JOIN tbdetalles_compras b ON a.idCompra=b.fkcompra INNER JOIN tbmonedas c ON a.fkMoneda=c.idMoneda INNER JOIN tbmateria_prima d ON b.fkMateriaPrima=d.idMateriaPrima INNER JOIN tbproveerdores e ON a.idProveedor = e.idProveedor INNER JOIN tbsucursales s ON a.fkSucursal = s.idSucursal";
+    let consulta = "SELECT a.*, b.*, c.*, d.*, e.NombresProveedor, e.direccionProveedor, e.estatus as estatusProveedor, s.* FROM tbmateriales_comprados a INNER JOIN tbdetalles_compras b ON a.idCompra=b.fkcompra INNER JOIN tbmonedas c ON a.fkMoneda=c.idMoneda INNER JOIN tbmateria_prima d ON b.fkMateriaPrima=d.idMateriaPrima INNER JOIN tbproveedores e ON a.idProveedor = e.idProveedor INNER JOIN tbsucursales s ON a.fkSucursal = s.idSucursal";
 
     let filtro = {
         idCompra: req.params.Id,        

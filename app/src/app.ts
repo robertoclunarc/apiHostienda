@@ -15,6 +15,7 @@ import unidadesRoutes from './routes/unidades.route';
 import ventasRoutes from './routes/venta.route';
 import inventarioMaterialRoutes from './routes/inventario.materiales.route';
 import inventarioProductosRoutes from './routes/inventario.productos.route';
+import parametrosGralesRoutes from './routes/parametros.route';
 //import {createToken} from './controllers/signin';
 
 import morgan from "morgan";
@@ -52,6 +53,7 @@ app.use('/usuarios',signinRoutes);
 app.use('/ventas', ventasRoutes);
 app.use('/inventarios/materiales', inventarioMaterialRoutes);
 app.use('/inventarios/productos', inventarioProductosRoutes);
+app.use('/parametros', parametrosGralesRoutes);
 
 app.get('/', (req, res) => {
 	const message = `Las APIs se ejecutan en el puerto: ${process.env.PORT}`;
