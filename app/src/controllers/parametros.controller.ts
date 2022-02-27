@@ -37,7 +37,7 @@ export const ConsultarIva = async (req: Request, resp: Response) => {
 export const createRecord = async (req: Request, resp: Response) => {
     let newPost: IparametrosGrales = req.body;      
     try {
-        const result = await db.querySelect("INSERT INTO IparametrosGrales SET ?", [newPost]);    
+        const result = await db.querySelect("INSERT INTO tblparametros_grales SET ?", [newPost]);    
         newPost.idParametro = result.insertId;
         return resp.status(201).json(newPost.idParametro);
 
@@ -51,7 +51,7 @@ export const updateRecord = async (req: Request, resp: Response) => {
     let idx = req.params.IdRec;
     let update: IparametrosGrales = req.body;
 
-    let consulta = ("UPDATE IparametrosGrales SET ? WHERE idParametro = ?");
+    let consulta = ("UPDATE tblparametros_grales SET ? WHERE idParametro = ?");
     try {
         const result = await db.querySelect(consulta, [update, idx]);
         resp.status(201).json("Parmetro actualizado correctamente");
@@ -63,7 +63,7 @@ export const updateRecord = async (req: Request, resp: Response) => {
 
 export const deleteRecord = async (req: Request, resp: Response) => {
     let idx = req.params.IdRec;
-    let consulta = ("delete from IparametrosGrales WHERE idParametro = ?");
+    let consulta = ("delete from tblparametros_grales WHERE idParametro = ?");
     try {
         const result = await db.querySelect(consulta, [idx]);
         resp.status(201).json("Parametro eliminado correctamente");

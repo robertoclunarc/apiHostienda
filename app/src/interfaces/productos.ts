@@ -2,7 +2,7 @@ export interface IProductos{
     idProducto ?: number;
     descripcionProducto? : string;
     fechaProduccion?: string;
-    imagenProducto?: string;
+    imagenProducto?: string;    
     //detalles?: IDetProductos[]
 }
 
