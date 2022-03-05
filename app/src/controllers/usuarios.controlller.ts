@@ -1,6 +1,6 @@
 import { json, Request, Response } from "express";
 import db from "../database";
-import { IUsuarios } from "../interfaces/usuarios";
+import { IUsuarios, IUsuarioSucursal } from "../interfaces/usuarios";
 import { createJWT } from "./auth.controller";
 import { encryptPassword, validatePassword } from "../middlewares/password";
 
@@ -50,6 +50,48 @@ export const SelectREcordAll = async (req: Request, resp: Response) => {
         }
 
         return resp.status(201).json(result);
+
+    } catch (error) {
+        resp.status(401).json({ err: error });
+    }
+}
+
+export const SelectUsuarioSucursales = async (req: Request, resp: Response) => {
+    let consulta = "SELECT u.*, s.* FROM tbusuarios u INNER JOIN tbsucursales s ON u.fksucursal=s.idSucursal";    
+    try {
+        const results = await db.querySelect(consulta);
+        if (results.length <= 0) {
+            return resp.status(402).json({ msg: "No Data!" });
+        }
+        let usuarios: IUsuarioSucursal[]=[];
+        let user: IUsuarioSucursal;
+        for await (let result of results){
+            user={},
+            user.usuario={
+                login :  result.login,
+                nombres : result.nombres,
+                cargo: result.cargo,
+                nivel: result.nivel,
+                email: result.email,  
+                estatus: result.estatus,
+                imagen: result.imagen
+            }
+            user.sucursal={
+                idSucursal: result.idSucursal,
+                nombreSucursal: result.nombreSucursal,
+                rifSucursal: result.rifSucursal,
+                direccionSucursal: result.direccionSucursal,
+                tlfSucursal: result.tlfSucursal,
+                encargado: result.encargado,
+                emailSucursal: result.emailSucursal,
+                fkempresa: result.fkempresa,
+                logoSucursal: result.logoSucursal
+            }
+            usuarios.push(user);
+            
+        }
+
+        return resp.status(201).json(usuarios);
 
     } catch (error) {
         resp.status(401).json({ err: error });

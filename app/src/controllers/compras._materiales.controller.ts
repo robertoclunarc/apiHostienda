@@ -129,8 +129,7 @@ function  armandoCompras(ar: IQueryComprasDetalles[]): IdetallesComprasConMateri
                 idCompra: value.idCompra,
                 fechaCompra: value.fechaCompra,
                 tasaDia: value.tasaDia,
-                fkMoneda: value.fkcompra,
-                total: value.total,
+                fkMoneda: value.fkcompra,                
                 subtotal: value.subtotal,
                 iva: value.iva,
                 montoIva: value.montoIva,
@@ -271,6 +270,18 @@ export const deleteRecordDetalle = async (req: Request, resp: Response) => {
     try {
         const result = await db.querySelect(consulta, [idx]);
         resp.status(201).json("Detalle eliminada correctamente");
+    } catch (error) {
+        console.log(error);
+        resp.json({"Error": error })
+    }   
+}
+
+export const deleteRecordDetalleCompras = async (req: Request, resp: Response) => {
+    let idx = req.params.IdRec;
+    let consulta = ("delete from tbdetalles_compras WHERE fkcompra = ?");
+    try {
+        const result = await db.querySelect(consulta, [idx]);
+        resp.status(201).json("Detalles eliminados correctamente");
     } catch (error) {
         console.log(error);
         resp.json({"Error": error })

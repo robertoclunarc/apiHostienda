@@ -2,5 +2,6 @@ export interface ImateriPrima{
 
     idMateriaPrima ?: number;
     descripcion? : string;
-    marca?: string;    
+    marca?: string;
+    retieneIva?: boolean;   
 }

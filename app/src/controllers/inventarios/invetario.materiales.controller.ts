@@ -39,12 +39,13 @@ export const SelectRecordFilter = async (req: Request, resp: Response) => {
         fkMateriaPrima: req.params.fkMateriaPrima,
         fksucursal: req.params.fksucursal,
         ubicacionA: req.params.ubicacionA,
-        fechaCrea: req.params.fechaCrea
+        fechaCrea: req.params.fechaCrea,
+        unidad: req.params.unidad,
     }
     
     let where: string[] = [];
     
-    if (filtro.fkMateriaPrima!='NULL' || filtro.fksucursal!='NULL' || filtro.ubicacionA!='NULL' || filtro.fechaCrea!='NULL'){ 
+    if (filtro.fkMateriaPrima!='NULL' || filtro.fksucursal!='NULL' || filtro.ubicacionA!='NULL' || filtro.fechaCrea!='NULL' || filtro.unidad!='NULL'){ 
         if (filtro.fkMateriaPrima!='NULL'){  
             where.push( " fkMateriaPrima =" + filtro.fkMateriaPrima);
         }
@@ -59,6 +60,10 @@ export const SelectRecordFilter = async (req: Request, resp: Response) => {
         
         if (filtro.ubicacionA!='NULL'){            
             where.push( " LOWER(ubicacionA) LIKE LOWER('%" + filtro.ubicacionA + "%')");
+        }
+
+        if (filtro.unidad!='NULL'){            
+            where.push( " LOWER(unidad) = LOWER('" + filtro.unidad + "')");
         }
 
         where.forEach(function(where, index) {
@@ -111,6 +116,42 @@ export const updateRecord = async (req: Request, resp: Response) => {
     }
 }
 
+export const sumarInventario = async (req: Request, resp: Response) => {
+    let newPost: IinventariosMateriales = req.body;
+    let resultado: any;
+    
+    let consulta = "SELECT * FROM tbinventarios_materiales WHERE fkMateriaPrima=? AND unidad=? AND fksucursal=?";    
+    try {
+        let result: IinventariosMateriales[] = await db.querySelect(consulta, [newPost.fkMateriaPrima, newPost.unidad, newPost.fksucursal]);
+        if (result.length <= 0) {
+            resultado = await db.querySelect("INSERT INTO tbinventarios_materiales SET ?", [newPost]);    
+            newPost.idInventario = resultado.insertId;
+            return resp.status(201).json(newPost.idInventario);
+        }
+        else{
+            consulta = ("UPDATE tbinventarios_materiales SET loginActualiza=?, fechaActualiza=?, precio1=?, cantidad=?, cantidadAcumulada=cantidadAcumulada+? WHERE fkMateriaPrima = ? and unidad=? AND fksucursal=? and estatus='ACTIVO'");
+            resultado = await db.querySelect(consulta, [newPost.loginCrea, newPost.fechaCrea, newPost.precio1, newPost.cantidad, newPost.cantidad, newPost.fkMateriaPrima, newPost.unidad, newPost.fksucursal]);
+            return resp.status(201).json("Inventario actualizado correctamente");
+        }
+    } catch (error) {
+        resp.status(401).json({ err: error });
+    }
+}
+
+export const restarInventario = async (req: Request, resp: Response) => {
+    let idx = req.params.IdRec;
+    let cant = req.params.cant;    
+    let und = req.params.unidad;
+    let sucursal = req.params.sucursal;
+    let consulta = ("UPDATE tbinventarios_materiales SET cantidad=?, cantidadAcumulada=cantidadAcumulada-? WHERE fkMateriaPrima = ? and unidad=? AND fksucursal=? and estatus='ACTIVO'");
+    try {
+        const result = await db.querySelect(consulta, [cant, cant, idx, und, sucursal]);
+        resp.status(201).json("Inventario actualizado correctamente");
+    } catch (error) {
+        console.log(error);
+        resp.json({"Error": error })
+    }
+}
 
 export const deleteRecord = async (req: Request, resp: Response) => {
     let idx = req.params.IdRec;

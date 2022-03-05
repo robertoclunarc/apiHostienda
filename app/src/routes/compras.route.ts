@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { SelectREcordAllCompras, SelectREcordAllDetalles, SelectRecordFilter, createRecordCompras, createRecordDetalle, updateRecordCompra, updateRecordDetalle, deleteRecordCompra, deleteRecordDetalle } from '../controllers/compras._materiales.controller';
+import { SelectREcordAllCompras, SelectREcordAllDetalles, SelectRecordFilter, createRecordCompras, createRecordDetalle, updateRecordCompra, updateRecordDetalle, deleteRecordCompra, deleteRecordDetalle, deleteRecordDetalleCompras } from '../controllers/compras._materiales.controller';
 //import { verifyToken } from "../../controllers/auth.controller";
 const router: Router= Router();
 
@@ -12,5 +12,6 @@ router.put('/actualizar/:IdRec', updateRecordCompra);
 router.put('/detalles/actualizar/:IdRec', updateRecordDetalle);
 router.delete('/eliminar/:IdRec',  deleteRecordCompra);
 router.delete('/detalles/eliminar/:IdRec',  deleteRecordDetalle);
+router.delete('/detalles/eliminar/todo/:IdRec',  deleteRecordDetalleCompras);
 
 export default router;

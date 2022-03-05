@@ -7,8 +7,7 @@ export interface IMaterialesComprados{
     idCompra?: number;
     fechaCompra?: string;
     tasaDia?: number;
-    fkMoneda?: number;
-    total?: number;
+    fkMoneda?: number;    
     subtotal?: number;
     iva?: number;
     montoIva?: number;
