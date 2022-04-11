@@ -1,6 +1,8 @@
 import { json, Request, Response } from "express";
 import db from "../../database";
-import { IProductos, IDetProductos } from "../../interfaces/productos";
+import { IProductos, IDetProductos, IdetProductosConMateriales, IdetProducto } from "../../interfaces/productos";
+import { ImateriPrima } from "../../interfaces/materiaprima";
+import { IMoneda } from '../../interfaces/monedas';
 
 export const SelectREcordAll = async (req: Request, resp: Response) => {
     let consulta = "SELECT * FROM tbproductos";    
@@ -59,28 +61,33 @@ export const SelectRecordFilter = async (req: Request, resp: Response) => {
 }
 
 export const SelectRecordDetProductos = async (req: Request, resp: Response) => {
-    let consulta = "SELECT tbproductos.*, tbdetetalles_productos.*, tbmateria_prima.* FROM tbproductos, tbdetetalles_productos, tbmateria_prima WHERE idProducto=fkProducto AND fkMateria=IdMateriaPrima";
+    let consulta = "SELECT a.*, b.*, c.*, d.*, e.*  FROM tbproductos a  LEFT join  tbdetetalles_productos b  on a.idProducto=b.fkProducto     LEFT join tbmateria_prima c on b.fkMateria=c.idMateriaPrima INNER JOIN tbsucursales d on d.idSucursal=a.fkSucursal INNER JOIN tbmonedas e on a.fkMoneda=e.idMoneda";
     
       let prod = {
-          idProducto: req.params.Id,        
-          descripcion: req.params.descripcion,
-          material: req.params.material       
+          idProducto: req.params.Id!='null'?req.params.Id:'NULL',        
+          descripcion: req.params.descripcion!='null'?req.params.descripcion:'NULL',
+          material: req.params.idMaterial!='null'?req.params.IdMaterial:'NULL',
+          sucursal: req.params.idSucursal!='null'?req.params.idSucursal:'NULL',     
       }
   
       let where: string[] = [];
       
-      if (prod.idProducto!="NULL" || prod.descripcion!="NULL"){
+      if (prod.idProducto!="NULL" || prod.descripcion!="NULL" || prod.material!="NULL" || prod.sucursal!="NULL"){
           if(prod.idProducto!="NULL"){   
-              where.push( " idProducto =" + prod.idProducto);
+              where.push( " a.idProducto =" + prod.idProducto);
           }
   
           if(prod.descripcion!="NULL"){
-              where.push( " LOWER(descripcionProducto) LIKE LOWER('%" + prod.descripcion + "%')");
+              where.push( " LOWER(a.descripcionProducto) LIKE LOWER('%" + prod.descripcion + "%')");
           }
           
           if(prod.material!="NULL"){
-            where.push( " LOWER(tbmateria_prima.descripcion) LIKE LOWER('%" + prod.material + "%')");
-        }
+            where.push( " c.idMateriaPrima =" + prod.material + "");
+          }
+
+          if(prod.sucursal!="NULL"){
+            where.push( " d.idSucursal =" + prod.sucursal + "");
+          }
   
           where.forEach(function(where, index) {
               if (index==0){
@@ -91,16 +98,91 @@ export const SelectRecordDetProductos = async (req: Request, resp: Response) => 
   
           }); 
           
-          consulta = consulta + " ORDER BY idDetProducto ";
+          consulta = consulta + " ORDER BY a.idProducto, b.idDetProducto ";
           console.log(consulta);
       }
       try {
           const result = await db.querySelect(consulta);
-          if (result.length <= 0) {
-              return resp.status(402).json({ msg: "No Data!" });
+          if (result.length > 0) {
+            let detProductosConMateriales:  IdetProductosConMateriales []=[];
+            let detProductoConMaterial: IdetProductosConMateriales={};
+            let moneda: IMoneda={};
+            detProductoConMaterial.materiaPrima=[];
+            //let detProd: IdetProducto
+            let material: ImateriPrima={};
+            let items: number=0;
+            let i: number=0;
+            for await (let det of result){
+                
+                //detProd={};
+                
+                detProductoConMaterial.producto={
+                    idProducto: det.idProducto,
+                    descripcionProducto : det.descripcionProducto,
+                    fechaProduccion: det.fechaProduccion,
+                    imagenProducto: det.imagenProducto,
+                    precio: det.precio,
+                    fkSucursal: det.fkSucursal,    
+                    marca: det.marca,
+                    retieneIva_prod: det.retieneIva_prod
+                };
+
+                detProductoConMaterial.sucursal={
+                    idSucursal: det.idSucursal,
+                    nombreSucursal: det.nombreSucursal,
+                    rifSucursal: det.rifSucursal,
+                    direccionSucursal: det.direccionSucursal,
+                    tlfSucursal: det.tlfSucursal,
+                    encargado: det.encargado,
+                    emailSucursal: det.emailSucursal,
+                    fkempresa: det.fkempresa,
+                    logoSucursal: det.logoSucursal
+                };
+
+                detProductoConMaterial.moneda={
+                    idMoneda: det.fkMoneda,
+                    descripcionMoneda: det.descripcionMoneda,
+                    abrevMoneda: det.abrevMoneda
+                };
+
+                if (det.idDetProducto!=undefined && det.idDetProducto!=null && det.idDetProducto!=""){
+                
+                    material={ 
+                        idMateriaPrima: det.idMateriaPrima,  
+                        descripcion: det.descripcion,  
+                        marca: det.marca,  
+                        retieneIva: det.retieneIva 
+                    };
+
+                    detProductoConMaterial.materiaPrima?.push({
+                        idDetProducto: det.idDetProducto,
+                        fkProducto: det.fkProducto,
+                        Materia: material,
+                        cantidad: det.cantidad,
+                        unidad: det.cantidad
+                    });
+                }               
+
+                items= await result.filter( (I:any) => I.idProducto==det.idProducto).length;
+               
+                if (i === items-1){
+                    
+                    detProductosConMateriales.push(detProductoConMaterial);
+                    i=0;
+                    detProductoConMaterial={};
+                    detProductoConMaterial.materiaPrima=[];
+                    material={};
+                }else{
+                    
+                    i++;
+                }
+            }
+
+
+            return resp.status(201).json(detProductosConMateriales);
           }
-  
-          return resp.status(201).json(result);
+          return resp.status(402).json({ msg: "No Data!" });
+          
   
       } catch (error) {
           resp.status(401).json({ err: error });
@@ -179,6 +261,18 @@ export const deleteRecordDetallesProducto = async (req: Request, resp: Response)
     try {
         const result = await db.querySelect(consulta, [idx]);
         resp.status(201).json("Producto eliminado correctamente");
+    } catch (error) {
+        console.log(error);
+        resp.json({"Error": error })
+    }   
+}
+
+export const deleteTodoDetallesProducto = async (req: Request, resp: Response) => {
+    let idx = req.params.IdRec;
+    let consulta = ("delete from tbdetalles_productos WHERE idProducto = ?");
+    try {
+        const result = await db.querySelect(consulta, [idx]);
+        resp.status(201).json("Detalles Producto eliminado correctamente");
     } catch (error) {
         console.log(error);
         resp.json({"Error": error })
