@@ -129,6 +129,7 @@ export const SelectRecordDetProductos = async (req: Request, resp: Response) => 
                     iva: det.iva,
                     montoIva: det.montoIva,
                     tasaDiaProd: det.tasaDiaProd,
+                    fkMoneda: det.fkMoneda
                 };
 
                 detProductoConMaterial.usuarioSucursal={
