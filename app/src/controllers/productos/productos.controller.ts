@@ -61,7 +61,7 @@ export const SelectRecordFilter = async (req: Request, resp: Response) => {
 }
 
 export const SelectRecordDetProductos = async (req: Request, resp: Response) => {
-    let consulta = "SELECT a.*, b.*, c.*, d.*, e.*  FROM tbproductos a  LEFT join  tbdetetalles_productos b  on a.idProducto=b.fkProducto     LEFT join tbmateria_prima c on b.fkMateria=c.idMateriaPrima INNER JOIN tbsucursales d on d.idSucursal=a.fkSucursal INNER JOIN tbmonedas e on a.fkMoneda=e.idMoneda";
+    let consulta = "SELECT a.*, b.*, c.*, d.*, e.*, u.*  FROM tbproductos a  LEFT join  tbdetetalles_productos b  on a.idProducto=b.fkProducto     LEFT join tbmateria_prima c on b.fkMateria=c.idMateriaPrima INNER JOIN tbsucursales d on d.idSucursal=a.fkSucursal INNER JOIN tbmonedas e on a.fkMoneda=e.idMoneda INNER JOIN tbusuarios u ON a.loginCrea=u.login";
     
       let prod = {
           idProducto: req.params.Id!='null'?req.params.Id:'NULL',        
@@ -122,21 +122,37 @@ export const SelectRecordDetProductos = async (req: Request, resp: Response) => 
                     fechaProduccion: det.fechaProduccion,
                     imagenProducto: det.imagenProducto,
                     precio: det.precio,
-                    fkSucursal: det.fkSucursal,    
-                    marca: det.marca,
-                    retieneIva_prod: det.retieneIva_prod
+                    fkSucursal: det.fkSucursal,
+                    loginCrea: det.loginCrea,    
+                    marcaProducto: det.marcaProducto,
+                    retieneIva_prod: det.retieneIva_prod,
+                    iva: det.iva,
+                    montoIva: det.montoIva,
+                    tasaDiaProd: det.tasaDiaProd,
                 };
 
-                detProductoConMaterial.sucursal={
-                    idSucursal: det.idSucursal,
-                    nombreSucursal: det.nombreSucursal,
-                    rifSucursal: det.rifSucursal,
-                    direccionSucursal: det.direccionSucursal,
-                    tlfSucursal: det.tlfSucursal,
-                    encargado: det.encargado,
-                    emailSucursal: det.emailSucursal,
-                    fkempresa: det.fkempresa,
-                    logoSucursal: det.logoSucursal
+                detProductoConMaterial.usuarioSucursal={
+                    
+                    sucursal: { 
+                        idSucursal: det.idSucursal,
+                        nombreSucursal: det.nombreSucursal,
+                        rifSucursal: det.rifSucursal,
+                        direccionSucursal: det.direccionSucursal,
+                        tlfSucursal: det.tlfSucursal,
+                        encargado: det.encargado,
+                        emailSucursal: det.emailSucursal,
+                        fkempresa: det.fkempresa,
+                        logoSucursal: det.logoSucursal
+                    },
+                    usuario: {
+                        login: det.login,                        
+                        nombres: det.nombres,
+                        cargo: det.cargo,
+                        nivel: det.nivel,
+                        email: det.email,                        
+                        estatus: det.estatus,
+                        imagen: det.imagen
+                    }
                 };
 
                 detProductoConMaterial.moneda={
