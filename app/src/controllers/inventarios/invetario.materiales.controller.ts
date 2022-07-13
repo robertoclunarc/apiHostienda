@@ -1,16 +1,43 @@
 import { json, Request, Response } from "express";
 import db from "../../database";
-import { IinventariosMateriales } from "../../interfaces/inventarios";
+import { IinventariosMateriales, IMaterialesEnInventario } from "../../interfaces/inventarios";
 
 export const SelectREcordAll = async (req: Request, resp: Response) => {
-    let consulta = "SELECT * FROM tbinventarios_materiales";    
+    let consulta = "SELECT a.*, b.* FROM tbinventarios_materiales a inner join tbmateria_prima b on a.fkMateriaPrima=b.idMateriaPrima order by a.fksucursal";
+    let material: IMaterialesEnInventario;
+    let materiales: IMaterialesEnInventario[]=[];
     try {
-        const result: IinventariosMateriales[] = await db.querySelect(consulta);
-        if (result.length <= 0) {
-            return resp.status(402).json({ msg: "No Data!" });
+        const result = await db.querySelect(consulta);
+        for await (const res of result){
+            material={};
+            material={
+                idInventario: res.idInventario,
+                MateriaPrima: {
+                    idMateriaPrima : res.idMateriaPrima,
+                    descripcion : res.descripcion,
+                    marca: res.marca,
+                    retieneIva: res.retieneIva,
+                },
+                cantidad: res.cantidad,
+                cantidadAcumulada: res.cantidadAcumulada,
+                unidad: res.unidad,
+                precio1:res.precio1,
+                fkMonedaPrecio1: res.fkMonedaPrecio1,
+                precio2: res.precio2,
+                fkMonedaPrecio2: res.fkMonedaPrecio2,
+                fksucursal: res.fksucursal,
+                ubicacionA:res.ubicacionA,
+                ubicacionB: res.ubicacionB,
+                loginCrea: res.loginCrea,
+                fechaCrea: res.fechaCrea,
+                loginActualiza: res.loginActualiza,
+                fechaActualiza: res.fechaActualiza,
+                estatus: res.estatus,
+            }
+            materiales.push(material);
         }
 
-        return resp.status(201).json(result);
+        return resp.status(201).json(materiales);
 
     } catch (error) {
         resp.status(401).json({ err: error });
@@ -124,6 +151,8 @@ export const sumarInventario = async (req: Request, resp: Response) => {
     try {
         let result: IinventariosMateriales[] = await db.querySelect(consulta, [newPost.fkMateriaPrima, newPost.unidad, newPost.fksucursal]);
         if (result.length <= 0) {
+            //console.log(newPost);
+            //console.log(result);
             resultado = await db.querySelect("INSERT INTO tbinventarios_materiales SET ?", [newPost]);    
             newPost.idInventario = resultado.insertId;
             return resp.status(201).json(newPost.idInventario);

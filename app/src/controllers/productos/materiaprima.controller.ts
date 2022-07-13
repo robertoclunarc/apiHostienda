@@ -66,9 +66,10 @@ export const SelectRecordFilter = async (req: Request, resp: Response) => {
 export const createRecord = async (req: Request, resp: Response) => {
     let newPost: ImateriPrima = req.body;      
     try {
+        console.log(newPost)
         const result = await db.querySelect("INSERT INTO tbmateria_prima SET ?", [newPost]);    
         newPost.idMateriaPrima = result.insertId;
-        return resp.status(201).json(newPost.idMateriaPrima);
+        return resp.status(201).json(newPost);
 
     } catch(error) {
         console.log(error);
