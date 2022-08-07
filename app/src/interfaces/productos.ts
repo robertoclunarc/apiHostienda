@@ -25,6 +25,8 @@ export interface IDetProductos{
     fkMateria?: number;
     cantidad?: number;
     unidad?: string;
+    precio?: number;
+    moneda?: string;
 }
 
 /*export interface IMateriales{    
@@ -39,6 +41,8 @@ export interface IdetProducto{
     Materia?:ImateriPrima;
     cantidad?: number;
     unidad?: string;
+    precio?: number;
+    moneda?: string;
 }
 
 export interface IdetProductosConMateriales{    

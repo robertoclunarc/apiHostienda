@@ -33,6 +33,19 @@ export const SelectRecordFilterTipo = async (req: Request, resp: Response) => {
     }
 }
 
+export const SelectUltimoPrecioIdMaterial = async (req: Request, resp: Response) => {
+    let consulta = "SELECT * FROM tbprecios WHERE fechaPrecio=(select max(fechaPrecio) from tbprecios where tipo='MATERIAL' and fkmaterial=?) and fkmaterial=?;"; 
+    
+    try {
+        const result: Iprecios[] = await db.querySelect(consulta,[req.params.idMaterial,req.params.idMaterial]);        
+
+        return resp.status(201).json(result[0]);
+
+    } catch (error) {
+        resp.status(401).json({ err: error });
+    }
+}
+
 export const SelectUltimoPrecioTipo = async (req: Request, resp: Response) => {
     let consulta = "SELECT * FROM tbprecios WHERE fechaPrecio=(select max(fechaPrecio) from tbprecios where tipo=?) and tipo=?;"; 
     
