@@ -3,7 +3,7 @@ import db from "../database";
 import { IProveedores } from "../interfaces/proveedores";
 
 export const SelectREcordAll = async (req: Request, resp: Response) => {
-    let consulta = "SELECT * FROM tbproveedores";    
+    let consulta = "SELECT * FROM tbproveedores ORDER BY  NombresProveedor" ;
     try {
         const result: IProveedores[] = await db.querySelect(consulta);
         if (result.length <= 0) {
@@ -43,8 +43,8 @@ export const SelectRecordFilter = async (req: Request, resp: Response) => {
                 consulta = consulta + " OR " + where;
             }
 
-        });        
-        console.log(consulta);
+        });
+        consulta = consulta + "  ORDER BY  NombresProveedor" ;       
     }
     try {
         const result = await db.querySelect(consulta);

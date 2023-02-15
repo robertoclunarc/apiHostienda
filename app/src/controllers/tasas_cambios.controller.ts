@@ -34,28 +34,30 @@ export const ultimaTasa = async (req: Request, resp: Response) => {
 }
 
 export const SelectRecordFilter = async (req: Request, resp: Response) => {
+    const valueIsNull = [undefined, 'undefined', 'null', 'NULL', ''];
+    const regex = /^[0-9]*$/;
     let consulta = "SELECT a.*, b.* FROM tbtasas_cambios a INNER JOIN tbmonedas b ON a.idMoneda=b.idMoneda";
-    let tasa = {
-        idCambio: req.params.Id,        
-        idMoneda: req.params.idMoneda,  
-        descripcionMoneda: req.params.nombre,         
+    let filtro = {
+        idCambio: valueIsNull.indexOf(req.params.Id)  != -1  ? null : req.params.Id,        
+        idMoneda: valueIsNull.indexOf(req.params.idMoneda)  != -1  ? null : req.params.idMoneda,  
+        descripcionMoneda: valueIsNull.indexOf(req.params.nombre)  != -1  ? null : req.params.nombre,         
         
     }
-    let fechaIni = req.params.fechaIni;
-    let fechaFin = req.params.fechaFin;
+    let fechaIni = valueIsNull.indexOf(req.params.fechaIni)  != -1  ? null : req.params.fechaIni;
+    let fechaFin = valueIsNull.indexOf(req.params.fechaFin)  != -1  ? null : req.params.fechaFin;
     let where: string[] = [];
     
-    if (tasa.idCambio!="NULL" || tasa.idMoneda!="NULL" || tasa.descripcionMoneda!="NULL"){
-        if(tasa.idCambio!="NULL"){   
-            where.push( " a.idCambio =" +tasa.idCambio);
+    if (filtro.idCambio!=null || filtro.idMoneda!=null || filtro.descripcionMoneda!=null){
+        if(filtro.idCambio!=null   && regex.test(filtro.idCambio)){   
+            where.push( " a.idCambio =" + filtro.idCambio);
         }
 
-        if(tasa.descripcionMoneda!="NULL"){
-            where.push( " LOWER(b.descripcionMoneda) LIKE LOWER('%" + tasa.descripcionMoneda + "%')");
+        if(filtro.descripcionMoneda!=null){
+            where.push( " LOWER(b.descripcionMoneda) LIKE LOWER('%" + filtro.descripcionMoneda + "%')");
         }        
         
-        if(tasa.idMoneda!="NULL"){
-            where.push( " a.idMoneda =" + tasa.idMoneda );
+        if(filtro.idMoneda!=null   && regex.test(filtro.idMoneda)){
+            where.push( " a.idMoneda =" + filtro.idMoneda );
         }
 
         if(fechaIni!="NULL" && fechaFin!="NULL"){
@@ -69,16 +71,34 @@ export const SelectRecordFilter = async (req: Request, resp: Response) => {
                 consulta = consulta + " OR " + where;
             }
 
-        });        
-        console.log(consulta);
+        });
+        consulta = consulta + " ORDER BY a.fechaCambio desc"
     }
     try {
-        const result: ItasaCambioMoneda[] = await db.querySelect(consulta);
+        const result = await db.querySelect(consulta);
         if (result.length <= 0) {
             return resp.status(402).json({ msg: "No Data!" });
         }
+        let tasasCambios: ItasaCambioMoneda[]=[];
+        let tasaCambio: ItasaCambioMoneda;
+        for await (let rs of result){
+            tasaCambio={};
+            tasaCambio.tasa={
+                idCambio: rs.idCambio,
+                fechaCambio: rs.fechaCambio,
+                tasaDia:rs.tasaDia,
+                idMoneda: rs.idMoneda
+            };
+            tasaCambio.moneda={
+                idMoneda: rs.idMoneda,
+                descripcionMoneda: rs.descripcionMoneda,
+                abrevMoneda: rs.abrevMoneda,
+                tipoMoneda: rs.tipoMoneda
+            };
+            tasasCambios.push(tasaCambio);
+        }
 
-        return resp.status(201).json(result);
+        return resp.status(201).json(tasasCambios);
 
     } catch (error) {
         resp.status(401).json({ err: error });

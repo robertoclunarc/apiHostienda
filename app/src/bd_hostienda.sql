@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 28-02-2022 a las 00:45:27
+-- Tiempo de generación: 23-01-2023 a las 02:08:40
 -- Versión del servidor: 10.4.22-MariaDB
 -- Versión de PHP: 7.4.27
 
@@ -74,9 +74,60 @@ CREATE TABLE `tbdetalles_compras` (
 --
 
 INSERT INTO `tbdetalles_compras` (`fkcompra`, `idDetCompra`, `fkMateriaPrima`, `cantidad`, `unidad`, `precioUnitario`, `subtotal`) VALUES
-(1, 1, 1, 1, 'Kg', 3, 3),
-(1, 2, 2, 1, 'Kg', 2, 2),
-(2, 3, 2, 1, 'Kg', 10, 10);
+(2, 3, 2, 1, 'Kg', 10, 10),
+(9, 4, 2, 2, 'Kg', 1.3, 2.6),
+(9, 5, 3, 1, 'Kg', 1.2, 1.2),
+(9, 6, 6, 2, 'Gr', 1.2, 2.4),
+(10, 7, 6, 250, 'UND', 1.2, 1.2),
+(10, 8, 5, 2, 'UND', 3, 3),
+(1, 9, 1, 1, 'Kg', 3, 3),
+(1, 10, 2, 1, 'Kg', 2, 2),
+(1, 11, 5, 1, 'Kg', 1.2, 1.2),
+(11, 12, 1, 2, 'Kg', 5.52, 11.04),
+(11, 13, 4, 1, 'Kg', 1, 1),
+(12, 14, 5, 150, 'Gr', 2, 2),
+(12, 15, 1, 2, 'Kg', 5.52, 11.04),
+(13, 20, 5, 1, 'Kg', 1, 1),
+(13, 21, 6, 300, 'Gr', 2, 2),
+(14, 22, 3, 30, 'UND', 5.1, 5.1),
+(15, 23, 2, 2, 'Kg', 2, 4),
+(23, 24, 2, 1, 'Gr', 2, 2),
+(23, 25, 7, 1, 'Gr', 1, 1),
+(24, 26, 1, 1, 'Gr', 1, 1),
+(25, 28, 4, 1, 'Gr', 1, 1),
+(26, 30, 6, 1, 'Gr', 1, 1),
+(28, 33, 2, 1, 'Ml', 1, 1),
+(29, 35, 10, 1, 'Kg', 1, 1),
+(29, 36, 1, 1, 'Kg', 1, 1);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `tbdetalles_productos`
+--
+
+CREATE TABLE `tbdetalles_productos` (
+  `idDetProducto` int(11) NOT NULL,
+  `fkProducto` int(11) NOT NULL,
+  `fkMateria` int(11) NOT NULL,
+  `cantidad` double NOT NULL,
+  `unidad` varchar(5) COLLATE utf8_spanish2_ci NOT NULL,
+  `precio` double NOT NULL,
+  `moneda` varchar(5) COLLATE utf8_spanish2_ci NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish2_ci;
+
+--
+-- Volcado de datos para la tabla `tbdetalles_productos`
+--
+
+INSERT INTO `tbdetalles_productos` (`idDetProducto`, `fkProducto`, `fkMateria`, `cantidad`, `unidad`, `precio`, `moneda`) VALUES
+(1, 4, 1, 1, 'Kg', 0, ''),
+(2, 4, 2, 1, 'Kg', 0, ''),
+(3, 2, 6, 10, 'Gr', 0, ''),
+(4, 2, 4, 1, 'UND', 0, ''),
+(5, 10, 3, 1, 'UND', 5.1, 'Bs'),
+(6, 10, 4, 1, 'Gr', 1, 'Bs'),
+(7, 10, 2, 1, 'Kg', 1, 'Bs');
 
 -- --------------------------------------------------------
 
@@ -93,20 +144,6 @@ CREATE TABLE `tbdetalles_ventas` (
   `precioUnitario` double NOT NULL,
   `subtotal` double NOT NULL,
   `estatus` varchar(10) COLLATE utf8_spanish2_ci NOT NULL DEFAULT 'ACTIVO'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish2_ci;
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `tbdetetalles_productos`
---
-
-CREATE TABLE `tbdetetalles_productos` (
-  `idDetProducto` int(11) NOT NULL,
-  `fkProducto` int(11) NOT NULL,
-  `fkMateria` int(11) NOT NULL,
-  `cantidad` double NOT NULL,
-  `unidad` varchar(5) COLLATE utf8_spanish2_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish2_ci;
 
 -- --------------------------------------------------------
@@ -136,6 +173,21 @@ INSERT INTO `tbempresas` (`idEmpresa`, `nombreEmpresa`, `direccionEmpresa`, `tlf
 -- --------------------------------------------------------
 
 --
+-- Estructura de tabla para la tabla `tbgastos_productos`
+--
+
+CREATE TABLE `tbgastos_productos` (
+  `idgasto` int(11) NOT NULL,
+  `descripcion_gasto` varchar(100) COLLATE utf8_spanish2_ci NOT NULL,
+  `fkProducto` int(11) NOT NULL,
+  `precio` int(11) NOT NULL,
+  `fkmoneda` int(11) NOT NULL,
+  `fecha` date NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish2_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Estructura de tabla para la tabla `tbinventarios_materiales`
 --
 
@@ -143,9 +195,12 @@ CREATE TABLE `tbinventarios_materiales` (
   `idInventario` int(11) NOT NULL,
   `fkMateriaPrima` int(11) NOT NULL,
   `cantidad` double NOT NULL,
+  `cantidadAcumulada` double NOT NULL DEFAULT 0,
   `unidad` varchar(10) COLLATE utf8_spanish2_ci NOT NULL,
   `precio1` double DEFAULT NULL,
+  `fkMonedaPrecio1` int(11) NOT NULL,
   `precio2` double DEFAULT NULL,
+  `fkMonedaPrecio2` int(11) NOT NULL,
   `fksucursal` int(11) NOT NULL,
   `ubicacionA` varchar(100) COLLATE utf8_spanish2_ci DEFAULT NULL,
   `ubicacionB` varchar(100) COLLATE utf8_spanish2_ci DEFAULT NULL,
@@ -155,6 +210,24 @@ CREATE TABLE `tbinventarios_materiales` (
   `fechaActualiza` datetime DEFAULT NULL,
   `estatus` varchar(10) COLLATE utf8_spanish2_ci NOT NULL DEFAULT 'ACTIVO'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish2_ci;
+
+--
+-- Volcado de datos para la tabla `tbinventarios_materiales`
+--
+
+INSERT INTO `tbinventarios_materiales` (`idInventario`, `fkMateriaPrima`, `cantidad`, `cantidadAcumulada`, `unidad`, `precio1`, `fkMonedaPrecio1`, `precio2`, `fkMonedaPrecio2`, `fksucursal`, `ubicacionA`, `ubicacionB`, `loginCrea`, `fechaCrea`, `loginActualiza`, `fechaActualiza`, `estatus`) VALUES
+(1, 1, 1, 2, 'Kg', 1, 2, NULL, 0, 1, NULL, NULL, 'rlunar', '2022-03-05 00:00:00', 'rlunar', '2022-07-12 18:58:26', 'ACTIVO'),
+(2, 5, 1, -1, 'Kg', 1, 2, NULL, 0, 1, NULL, NULL, 'rlunar', '2022-03-05 00:00:00', NULL, NULL, 'ACTIVO'),
+(3, 3, 3, 36, 'UND', 5.1, 2, NULL, 0, 1, NULL, NULL, 'rlunar', '2022-03-05 00:00:00', 'rlunar', '2022-03-05 00:00:00', 'ACTIVO'),
+(4, 4, 3, 0, 'Kg', 3.4, 2, NULL, 0, 1, NULL, NULL, 'rlunar', '2022-03-05 00:00:00', NULL, NULL, 'ACTIVO'),
+(5, 4, 3, 0, 'Kg', 3.4, 2, NULL, 0, 1, NULL, NULL, 'rlunar', '2022-03-05 00:00:00', NULL, NULL, 'ACTIVO'),
+(12, 6, 1, 0, 'Gr', 1, 2, NULL, 0, 1, NULL, NULL, 'rlunar', '2022-03-05 00:00:00', 'rlunar', '2022-07-10 20:01:00', 'ACTIVO'),
+(13, 2, 2, 2, 'Kg', 2, 2, NULL, 0, 1, NULL, NULL, 'rlunar', '2022-03-05 00:00:00', NULL, NULL, 'ACTIVO'),
+(14, 2, 1, 1, 'Gr', 2, 1, NULL, 0, 1, NULL, NULL, 'rlunar', '2022-07-10 19:38:57', NULL, NULL, 'ACTIVO'),
+(15, 7, 1, 1, 'Gr', 1, 1, NULL, 0, 1, NULL, NULL, 'rlunar', '2022-07-10 19:38:57', NULL, NULL, 'ACTIVO'),
+(19, 4, 1, 1, 'Gr', 1, 1, NULL, 0, 1, NULL, NULL, 'rlunar', '2022-07-10 19:52:43', NULL, NULL, 'ACTIVO'),
+(23, 2, 1, 1, 'Ml', 1, 2, NULL, 0, 1, NULL, NULL, 'rlunar', '2022-07-10 20:16:32', NULL, NULL, 'ACTIVO'),
+(25, 10, 1, 1, 'Kg', 1, 1, NULL, 0, 1, NULL, NULL, 'rlunar', '2022-07-12 18:58:26', NULL, NULL, 'ACTIVO');
 
 -- --------------------------------------------------------
 
@@ -209,7 +282,6 @@ CREATE TABLE `tbmateriales_comprados` (
   `fechaCompra` datetime NOT NULL DEFAULT current_timestamp(),
   `tasaDia` double NOT NULL,
   `fkMoneda` int(11) NOT NULL,
-  `total` double NOT NULL,
   `subtotal` double NOT NULL,
   `iva` double DEFAULT 0,
   `montoIva` double DEFAULT 0,
@@ -224,9 +296,35 @@ CREATE TABLE `tbmateriales_comprados` (
 -- Volcado de datos para la tabla `tbmateriales_comprados`
 --
 
-INSERT INTO `tbmateriales_comprados` (`idCompra`, `fechaCompra`, `tasaDia`, `fkMoneda`, `total`, `subtotal`, `iva`, `montoIva`, `neto`, `estatus`, `idProveedor`, `loginCrea`, `fkSucursal`) VALUES
-(1, '2022-01-22 11:56:07', 4.7, 1, 5, 5, 0, 0, 5, 'ACTIVO', 1, 'rlunar', 1),
-(2, '2022-01-22 11:57:30', 4.7, 1, 3, 3, 0, 0, 3, 'ACTIVO', 1, 'rlunar', 1);
+INSERT INTO `tbmateriales_comprados` (`idCompra`, `fechaCompra`, `tasaDia`, `fkMoneda`, `subtotal`, `iva`, `montoIva`, `neto`, `estatus`, `idProveedor`, `loginCrea`, `fkSucursal`) VALUES
+(1, '2022-01-22 00:00:00', 4.7, 1, 6.2, 0, 0, 6.2, 'ACTIVO', 1, 'rlunar', 1),
+(2, '2022-01-22 11:57:30', 4.7, 1, 3, 0, 0, 3, 'ACTIVO', 1, 'rlunar', 1),
+(4, '2022-02-28 00:00:00', 4.6, 1, 17.02, 16, 1.77, 18.79, 'ACTIVO', 1, 'rlunar', 1),
+(5, '2022-02-28 00:00:00', 4.6, 2, 2.4, 16, 0.19, 2.59, 'ACTIVO', 2, 'rlunar', 1),
+(6, '2022-02-28 00:00:00', 4.6, 2, 2.5, 16, 0.19, 2.69, 'ACTIVO', 2, 'rlunar', 1),
+(7, '2022-02-28 00:00:00', 4.6, 2, 302.4, 16, 48.38, 350.78, 'ACTIVO', 2, 'rlunar', 1),
+(8, '2022-02-28 00:00:00', 4.6, 2, 9.42, 16, 0.88, 10.3, 'ACTIVO', 2, 'rlunar', 1),
+(9, '2022-02-28 00:00:00', 4.6, 2, 6.2, 16, 0.38, 6.58, 'ACTIVO', 2, 'rlunar', 1),
+(10, '2022-03-01 00:00:00', 4.6, 2, 4.2, 16, 0.67, 4.87, 'ACTIVO', 2, 'rlunar', 1),
+(11, '2022-03-05 00:00:00', 4.6, 1, 12.04, 16, 1.77, 13.81, 'ACTIVO', 1, 'rlunar', 1),
+(12, '2022-03-05 00:00:00', 4.6, 1, 13.04, 16, 2.09, 15.13, 'ACTIVO', 2, 'rlunar', 1),
+(13, '2022-03-05 00:00:00', 4.6, 2, 3, 16, 0.32, 3.32, 'ACTIVO', 2, 'rlunar', 1),
+(14, '2022-03-05 00:00:00', 4.4, 2, 5.1, 16, 0, 5.1, 'ACTIVO', 1, 'rlunar', 1),
+(15, '2022-03-05 00:00:00', 4.6, 2, 4, 16, 0, 4, 'ACTIVO', 1, 'rlunar', 1),
+(16, '2022-07-10 00:00:00', 5.8, 1, 13.6, 16, 0, 13.6, 'ACTIVO', 1, 'rlunar', 1),
+(17, '2022-07-10 00:00:00', 5.8, 1, 2, 16, 0, 2, 'ACTIVO', 2, 'rlunar', 1),
+(18, '2022-07-10 00:00:00', 5.8, 2, 2, 16, 0, 2, 'ACTIVO', 2, 'rlunar', 1),
+(19, '2022-07-10 00:00:00', 5.8, 1, 1, 16, 0, 1, 'ACTIVO', 1, 'rlunar', 1),
+(20, '2022-07-10 00:00:00', 5.8, 1, 4, 16, 0, 4, 'ACTIVO', 2, 'rlunar', 1),
+(21, '2022-07-10 00:00:00', 5.8, 1, 33.58, 16, 0.32, 33.9, 'ACTIVO', 1, 'rlunar', 1),
+(22, '2022-07-10 00:00:00', 5.8, 1, 5, 16, 0.16, 5.16, 'ACTIVO', 1, 'rlunar', 1),
+(23, '2022-07-10 00:00:00', 5.8, 1, 3, 16, 0, 3, 'ACTIVO', 1, 'rlunar', 1),
+(24, '2022-07-10 00:00:00', 5.8, 1, 2, 16, 0.16, 2.16, 'ACTIVO', 1, 'rlunar', 1),
+(25, '2022-07-10 00:00:00', 5.8, 1, 2, 16, 0, 2, 'ACTIVO', 1, 'rlunar', 1),
+(26, '2022-07-10 00:00:00', 5.8, 1, 2, 16, 0, 2, 'ACTIVO', 1, 'rlunar', 1),
+(27, '2022-07-10 00:00:00', 5.8, 1, 3, 16, 0, 3, 'ACTIVO', 1, 'rlunar', 1),
+(28, '2022-07-10 00:00:00', 5.8, 2, 2, 16, 0, 2, 'ACTIVO', 1, 'rlunar', 1),
+(29, '2022-07-12 00:00:00', 5.8, 1, 2, 16, 0.16, 2.16, 'ACTIVO', 1, 'rlunar', 1);
 
 -- --------------------------------------------------------
 
@@ -237,16 +335,25 @@ INSERT INTO `tbmateriales_comprados` (`idCompra`, `fechaCompra`, `tasaDia`, `fkM
 CREATE TABLE `tbmateria_prima` (
   `idMateriaPrima` int(11) NOT NULL,
   `descripcion` varchar(80) COLLATE utf8_spanish2_ci NOT NULL,
-  `marca` varchar(80) COLLATE utf8_spanish2_ci NOT NULL
+  `marca` varchar(80) COLLATE utf8_spanish2_ci NOT NULL,
+  `retieneIva` tinyint(1) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish2_ci;
 
 --
 -- Volcado de datos para la tabla `tbmateria_prima`
 --
 
-INSERT INTO `tbmateria_prima` (`idMateriaPrima`, `descripcion`, `marca`) VALUES
-(1, 'Azucar 1kg', 'Montalban'),
-(2, 'Harina de trigo 1Kg', 'Dona Maria');
+INSERT INTO `tbmateria_prima` (`idMateriaPrima`, `descripcion`, `marca`, `retieneIva`) VALUES
+(1, 'Azucar 1kg', 'Montalban', 1),
+(2, 'Harina de trigo 1Kg', 'Dona Maria', 0),
+(3, 'Huevos', '.', 0),
+(4, 'Mantequilla 1Kg', 'Mavesa', 0),
+(5, 'Chocolate en Barra', 'Savoy', 1),
+(6, 'Cacao', '.', 1),
+(7, 'manteca', 'los tres cochinitos', 0),
+(8, 'manteca', 'QWE', 0),
+(9, 'lache', 'don bom', 0),
+(10, 'sal', 'de mar', 0);
 
 -- --------------------------------------------------------
 
@@ -266,7 +373,7 @@ CREATE TABLE `tbmonedas` (
 --
 
 INSERT INTO `tbmonedas` (`idMoneda`, `descripcionMoneda`, `abrevMoneda`, `tipoMoneda`) VALUES
-(1, 'Bolivares Digitales', 'Bs.D', 'Local'),
+(1, 'Bolivares', 'Bs', 'Local'),
 (2, 'Dolar', '$', 'Extrangera');
 
 -- --------------------------------------------------------
@@ -322,8 +429,17 @@ CREATE TABLE `tbprecios` (
 --
 
 INSERT INTO `tbprecios` (`idPrecio`, `fkMaterial`, `fkProducto`, `Precio`, `fkMoneda`, `fechaPrecio`, `tipo`) VALUES
-(1, 1, NULL, 1.2, 2, '2022-02-27 13:10:12', 'MATERIAL'),
-(2, 2, NULL, 1.3, 2, '2022-02-27 13:10:12', 'MATERIAL');
+(1, 1, NULL, 1.2, 1, '2022-02-27 13:10:12', 'MATERIAL'),
+(2, 2, NULL, 1.3, 1, '2022-02-27 13:10:12', 'MATERIAL'),
+(3, 3, NULL, 5.1, 1, '2022-03-05 00:00:00', 'MATERIAL'),
+(4, 2, NULL, 2, 1, '2022-03-05 00:00:00', 'MATERIAL'),
+(5, 2, NULL, 2, 1, '2022-07-10 19:38:57', 'MATERIAL'),
+(6, 7, NULL, 1, 1, '2022-07-10 19:38:57', 'MATERIAL'),
+(7, 1, NULL, 1, 1, '2022-07-10 19:39:40', 'MATERIAL'),
+(9, 4, NULL, 1, 1, '2022-07-10 19:52:43', 'MATERIAL'),
+(11, 6, NULL, 1, 1, '2022-07-10 20:01:00', 'MATERIAL'),
+(14, 2, NULL, 1, 1, '2022-07-10 20:16:31', 'MATERIAL'),
+(17, 1, NULL, 1, 1, '2022-07-12 18:58:26', 'MATERIAL');
 
 -- --------------------------------------------------------
 
@@ -334,9 +450,34 @@ INSERT INTO `tbprecios` (`idPrecio`, `fkMaterial`, `fkProducto`, `Precio`, `fkMo
 CREATE TABLE `tbproductos` (
   `idProducto` int(11) NOT NULL,
   `descripcionProducto` varchar(100) COLLATE utf8_spanish2_ci NOT NULL,
+  `marcaProducto` varchar(900) COLLATE utf8_spanish2_ci DEFAULT NULL,
+  `retieneIva_prod` tinyint(1) NOT NULL,
+  `iva` double DEFAULT NULL,
+  `montoIva` double DEFAULT NULL,
+  `precio` double NOT NULL,
+  `tasaDiaProd` double DEFAULT NULL,
+  `fkMoneda` int(11) NOT NULL,
   `fechaProduccion` datetime DEFAULT current_timestamp(),
-  `imagenProducto` varchar(500) COLLATE utf8_spanish2_ci DEFAULT NULL
+  `imagenProducto` varchar(500) COLLATE utf8_spanish2_ci DEFAULT NULL,
+  `fkSucursal` int(11) NOT NULL,
+  `loginCrea` varchar(10) COLLATE utf8_spanish2_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish2_ci;
+
+--
+-- Volcado de datos para la tabla `tbproductos`
+--
+
+INSERT INTO `tbproductos` (`idProducto`, `descripcionProducto`, `marcaProducto`, `retieneIva_prod`, `iva`, `montoIva`, `precio`, `tasaDiaProd`, `fkMoneda`, `fechaProduccion`, `imagenProducto`, `fkSucursal`, `loginCrea`) VALUES
+(1, 'Cheetos', NULL, 0, NULL, NULL, 10, NULL, 1, '2022-03-19 14:20:10', NULL, 1, 'rlunar'),
+(2, 'Torta de chocolate', NULL, 0, NULL, NULL, 9, NULL, 2, '2022-03-19 14:20:10', NULL, 1, 'rlunar'),
+(3, 'Chupeta', NULL, 0, NULL, NULL, 13, NULL, 1, '2022-03-19 14:20:59', NULL, 1, 'rlunar'),
+(4, 'Torta burrera', NULL, 0, NULL, NULL, 15, NULL, 2, '2022-03-19 14:20:59', NULL, 1, 'rlunar'),
+(5, 'marqueza de chocolate', 'dulcescarlotina', 0, 16, 2, 2, 19.27, 1, '2023-01-14 00:00:00', NULL, 1, 'rlunar'),
+(6, 'marqueza de chocolate', 'dulcescarlotina', 0, 16, 0, 3, 19.27, 2, '2023-01-15 00:00:00', NULL, 1, 'rlunar'),
+(7, 'marqueza de chocolate', 'dulcescarlotina', 0, 16, 1, 4, 15.27, 2, '2023-01-15 00:00:00', NULL, 1, 'rlunar'),
+(8, 'marqueza de chocolate', 'dulcescarlotina', 0, 16, 0.48, 3, 2, 1, '2023-01-21 00:00:00', NULL, 1, 'rlunar'),
+(9, 'torta humeda', 'dulcescarlotina', 0, 16, 0.48, 3, 20, 1, '2023-01-21 00:00:00', NULL, 1, 'rlunar'),
+(10, 'torta de chocolate', 'dulcescarlotina', 0, 16, 0.48, 3, 20, 1, '2023-01-21 00:00:00', NULL, 1, 'rlunar');
 
 -- --------------------------------------------------------
 
@@ -438,6 +579,14 @@ CREATE TABLE `tbusuarios` (
   `imagen` varchar(500) COLLATE utf8_spanish2_ci DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish2_ci;
 
+--
+-- Volcado de datos para la tabla `tbusuarios`
+--
+
+INSERT INTO `tbusuarios` (`login`, `passw`, `nombres`, `cargo`, `nivel`, `email`, `fksucursal`, `estatus`, `imagen`) VALUES
+('castudillo', '98765', 'Carla Astudillo', 'Repostera', 2, 'carlotinaderussia@gmail.com', 1, 'ACTIVO', NULL),
+('rlunar', '12345', 'Roberto Lunar', 'Developer', 1, 'robertoclunag@gmail.com', 1, 'ACTIVO', NULL);
+
 -- --------------------------------------------------------
 
 --
@@ -489,6 +638,14 @@ ALTER TABLE `tbdetalles_compras`
   ADD KEY `fkMateriaPrima` (`fkMateriaPrima`);
 
 --
+-- Indices de la tabla `tbdetalles_productos`
+--
+ALTER TABLE `tbdetalles_productos`
+  ADD PRIMARY KEY (`idDetProducto`),
+  ADD KEY `fkProducto` (`fkProducto`),
+  ADD KEY `fkMateria` (`fkMateria`);
+
+--
 -- Indices de la tabla `tbdetalles_ventas`
 --
 ALTER TABLE `tbdetalles_ventas`
@@ -497,18 +654,18 @@ ALTER TABLE `tbdetalles_ventas`
   ADD KEY `fkProducto` (`fkProducto`);
 
 --
--- Indices de la tabla `tbdetetalles_productos`
---
-ALTER TABLE `tbdetetalles_productos`
-  ADD PRIMARY KEY (`idDetProducto`),
-  ADD KEY `fkProducto` (`fkProducto`),
-  ADD KEY `fkMateria` (`fkMateria`);
-
---
 -- Indices de la tabla `tbempresas`
 --
 ALTER TABLE `tbempresas`
   ADD PRIMARY KEY (`idEmpresa`);
+
+--
+-- Indices de la tabla `tbgastos_productos`
+--
+ALTER TABLE `tbgastos_productos`
+  ADD PRIMARY KEY (`idgasto`),
+  ADD KEY `fkProducto` (`fkProducto`),
+  ADD KEY `fkmoneda` (`fkmoneda`);
 
 --
 -- Indices de la tabla `tbinventarios_materiales`
@@ -516,7 +673,9 @@ ALTER TABLE `tbempresas`
 ALTER TABLE `tbinventarios_materiales`
   ADD PRIMARY KEY (`idInventario`),
   ADD KEY `fksucursal` (`fksucursal`),
-  ADD KEY `fkMateriaPrima` (`fkMateriaPrima`);
+  ADD KEY `fkMateriaPrima` (`fkMateriaPrima`),
+  ADD KEY `fkMonedaPrecio1` (`fkMonedaPrecio1`),
+  ADD KEY `fkMonedaPrecio2` (`fkMonedaPrecio2`);
 
 --
 -- Indices de la tabla `tbinventarios_productos`
@@ -589,7 +748,9 @@ ALTER TABLE `tbprecios`
 -- Indices de la tabla `tbproductos`
 --
 ALTER TABLE `tbproductos`
-  ADD PRIMARY KEY (`idProducto`);
+  ADD PRIMARY KEY (`idProducto`),
+  ADD KEY `fkSucursal` (`fkSucursal`),
+  ADD KEY `fkModena` (`fkMoneda`);
 
 --
 -- Indices de la tabla `tbproveedores`
@@ -654,7 +815,13 @@ ALTER TABLE `tbdetallespedidos`
 -- AUTO_INCREMENT de la tabla `tbdetalles_compras`
 --
 ALTER TABLE `tbdetalles_compras`
-  MODIFY `idDetCompra` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `idDetCompra` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=37;
+
+--
+-- AUTO_INCREMENT de la tabla `tbdetalles_productos`
+--
+ALTER TABLE `tbdetalles_productos`
+  MODIFY `idDetProducto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT de la tabla `tbdetalles_ventas`
@@ -663,22 +830,22 @@ ALTER TABLE `tbdetalles_ventas`
   MODIFY `idDetVenta` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT de la tabla `tbdetetalles_productos`
---
-ALTER TABLE `tbdetetalles_productos`
-  MODIFY `idDetProducto` int(11) NOT NULL AUTO_INCREMENT;
-
---
 -- AUTO_INCREMENT de la tabla `tbempresas`
 --
 ALTER TABLE `tbempresas`
   MODIFY `idEmpresa` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
+-- AUTO_INCREMENT de la tabla `tbgastos_productos`
+--
+ALTER TABLE `tbgastos_productos`
+  MODIFY `idgasto` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT de la tabla `tbinventarios_materiales`
 --
 ALTER TABLE `tbinventarios_materiales`
-  MODIFY `idInventario` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `idInventario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
 
 --
 -- AUTO_INCREMENT de la tabla `tbinventarios_productos`
@@ -696,13 +863,13 @@ ALTER TABLE `tblparametros_grales`
 -- AUTO_INCREMENT de la tabla `tbmateriales_comprados`
 --
 ALTER TABLE `tbmateriales_comprados`
-  MODIFY `idCompra` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `idCompra` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
 
 --
 -- AUTO_INCREMENT de la tabla `tbmateria_prima`
 --
 ALTER TABLE `tbmateria_prima`
-  MODIFY `idMateriaPrima` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `idMateriaPrima` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT de la tabla `tbmonedas`
@@ -726,13 +893,13 @@ ALTER TABLE `tbpedidos_asociados`
 -- AUTO_INCREMENT de la tabla `tbprecios`
 --
 ALTER TABLE `tbprecios`
-  MODIFY `idPrecio` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `idPrecio` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 
 --
 -- AUTO_INCREMENT de la tabla `tbproductos`
 --
 ALTER TABLE `tbproductos`
-  MODIFY `idProducto` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `idProducto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT de la tabla `tbproveedores`
@@ -782,6 +949,13 @@ ALTER TABLE `tbdetalles_compras`
   ADD CONSTRAINT `tbdetalles_compras_ibfk_2` FOREIGN KEY (`fkMateriaPrima`) REFERENCES `tbmateria_prima` (`idMateriaPrima`);
 
 --
+-- Filtros para la tabla `tbdetalles_productos`
+--
+ALTER TABLE `tbdetalles_productos`
+  ADD CONSTRAINT `tbdetalles_productos_ibfk_1` FOREIGN KEY (`fkProducto`) REFERENCES `tbproductos` (`idProducto`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `tbdetalles_productos_ibfk_2` FOREIGN KEY (`fkMateria`) REFERENCES `tbmateria_prima` (`idMateriaPrima`);
+
+--
 -- Filtros para la tabla `tbdetalles_ventas`
 --
 ALTER TABLE `tbdetalles_ventas`
@@ -789,11 +963,11 @@ ALTER TABLE `tbdetalles_ventas`
   ADD CONSTRAINT `tbdetalles_ventas_ibfk_2` FOREIGN KEY (`fkProducto`) REFERENCES `tbproductos` (`idProducto`);
 
 --
--- Filtros para la tabla `tbdetetalles_productos`
+-- Filtros para la tabla `tbgastos_productos`
 --
-ALTER TABLE `tbdetetalles_productos`
-  ADD CONSTRAINT `tbdetetalles_productos_ibfk_1` FOREIGN KEY (`fkProducto`) REFERENCES `tbproductos` (`idProducto`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `tbdetetalles_productos_ibfk_2` FOREIGN KEY (`fkMateria`) REFERENCES `tbmateria_prima` (`idMateriaPrima`);
+ALTER TABLE `tbgastos_productos`
+  ADD CONSTRAINT `tbgastos_productos_ibfk_1` FOREIGN KEY (`fkProducto`) REFERENCES `tbproductos` (`idProducto`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `tbgastos_productos_ibfk_2` FOREIGN KEY (`fkmoneda`) REFERENCES `tbmonedas` (`idMoneda`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 --
 -- Filtros para la tabla `tbinventarios_materiales`

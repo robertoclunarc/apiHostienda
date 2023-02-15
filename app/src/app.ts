@@ -17,6 +17,8 @@ import inventarioMaterialRoutes from './routes/inventario.materiales.route';
 import inventarioProductosRoutes from './routes/inventario.productos.route';
 import parametrosGralesRoutes from './routes/parametros.route';
 import preciosRoutes from './routes/precios.route';
+import gastosProductosRoutes from './routes/gastos_productos.route';
+import costoProductosRoutes from './routes/costos_productos.route';
 //import {createToken} from './controllers/signin';
 
 import morgan from "morgan";
@@ -39,25 +41,29 @@ app.listen(app.get("port"));
 console.log("Server express on port:", app.get("port"));
 
 //app.get('/token/:login', createToken);
-app.use('/unidades', unidadesRoutes);
-app.use('/tasas', tasaCambioRoutes);
-app.use('/compras', comprasRoutes);
-app.use('/monedas', monedasRoutes);
-app.use('/sucursales', sucursalesRoutes);
-app.use('/empresas', empresaRoutes);
-app.use('/proveedores', proveedoresRoutes);
-app.use('/pedidos', pedidosRoutes);
-app.use('/compradores', compradoresRoutes);
-app.use('/productos', productosRoutes);
-app.use('/materiasprima',materiaRoutes);
-app.use('/usuarios',signinRoutes);
-app.use('/ventas', ventasRoutes);
-app.use('/inventarios/materiales', inventarioMaterialRoutes);
-app.use('/inventarios/productos', inventarioProductosRoutes);
-app.use('/parametros', parametrosGralesRoutes);
-app.use('/precios', preciosRoutes);
+
+app.use('/hostienda/unidades', unidadesRoutes);
+app.use('/hostienda/tasas', tasaCambioRoutes);
+app.use('/hostienda/compras', comprasRoutes);
+app.use('/hostienda/monedas', monedasRoutes);
+app.use('/hostienda/sucursales', sucursalesRoutes);
+app.use('/hostienda/empresas', empresaRoutes);
+app.use('/hostienda/proveedores', proveedoresRoutes);
+app.use('/hostienda/pedidos', pedidosRoutes);
+app.use('/hostienda/compradores', compradoresRoutes);
+app.use('/hostienda/productos', productosRoutes);
+app.use('/hostienda/materiasprima',materiaRoutes);
+app.use('/hostienda/usuarios',signinRoutes);
+app.use('/hostienda/ventas', ventasRoutes);
+app.use('/hostienda/inventarios/materiales', inventarioMaterialRoutes);
+app.use('/hostienda/inventarios/productos', inventarioProductosRoutes);
+app.use('/hostienda/parametros', parametrosGralesRoutes);
+app.use('/hostienda/precios', preciosRoutes);
+app.use('/hostienda/gastos/productos', gastosProductosRoutes);
+app.use('/hostienda/costos/productos', costoProductosRoutes);
 
 app.get('/', (req, res) => {
+	//console.log(`Las APIs se ejecutan en el puerto: ${app.get("port")}`);
 	const message = `Las APIs se ejecutan en el puerto: ${process.env.PORT}`;
 	res.json({
 		message

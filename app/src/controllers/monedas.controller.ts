@@ -43,7 +43,7 @@ export const SelectRecordFilter = async (req: Request, resp: Response) => {
             }
 
         });        
-        console.log(consulta);
+        
     }
     try {
         const result = await db.querySelect(consulta);

@@ -61,31 +61,33 @@ export const SelectRecordFilter = async (req: Request, resp: Response) => {
 }
 
 export const SelectRecordDetProductos = async (req: Request, resp: Response) => {
-    let consulta = "SELECT a.*, b.*, c.*, d.*, e.*, u.*  FROM tbproductos a  LEFT join  tbdetetalles_productos b  on a.idProducto=b.fkProducto     LEFT join tbmateria_prima c on b.fkMateria=c.idMateriaPrima INNER JOIN tbsucursales d on d.idSucursal=a.fkSucursal INNER JOIN tbmonedas e on a.fkMoneda=e.idMoneda INNER JOIN tbusuarios u ON a.loginCrea=u.login";
+    const valueIsNull = [undefined, 'null', 'NULL', ''];
+    const regex = /^[0-9]*$/;
+    let consulta = "SELECT a.*, a.precio as precioprod, b.*, b.precio as preciodetprod, c.*, d.*, e.*, u.*  FROM tbproductos a  LEFT join  tbdetalles_productos b  on a.idProducto=b.fkProducto     LEFT join tbmateria_prima c on b.fkMateria=c.idMateriaPrima INNER JOIN tbsucursales d on d.idSucursal=a.fkSucursal INNER JOIN tbmonedas e on a.fkMoneda=e.idMoneda INNER JOIN tbusuarios u ON a.loginCrea=u.login";
     
       let prod = {
-          idProducto: req.params.Id!='null'?req.params.Id:'NULL',        
-          descripcion: req.params.descripcion!='null'?req.params.descripcion:'NULL',
-          material: req.params.idMaterial!='null'?req.params.IdMaterial:'NULL',
-          sucursal: req.params.idSucursal!='null'?req.params.idSucursal:'NULL',     
+          idProducto: valueIsNull.indexOf(req.params.Id)  != -1  ? null :  req.params.Id,        
+          descripcion: valueIsNull.indexOf(req.params.descripcion)  != -1  ? null :  req.params.descripcion,
+          material: valueIsNull.indexOf(req.params.idMaterial)  != -1  ? null :  req.params.IdMaterial,
+          sucursal: valueIsNull.indexOf(req.params.idSucursal)  != -1  ? null :  req.params.idSucursal,     
       }
   
       let where: string[] = [];
       
-      if (prod.idProducto!="NULL" || prod.descripcion!="NULL" || prod.material!="NULL" || prod.sucursal!="NULL"){
-          if(prod.idProducto!="NULL"){   
+      if (prod.idProducto!=null || prod.descripcion!=null || prod.material!=null || prod.sucursal!=null){
+          if(prod.idProducto!=null && regex.test(prod.idProducto)){   
               where.push( " a.idProducto =" + prod.idProducto);
           }
   
-          if(prod.descripcion!="NULL"){
+          if(prod.descripcion!=null){
               where.push( " LOWER(a.descripcionProducto) LIKE LOWER('%" + prod.descripcion + "%')");
           }
           
-          if(prod.material!="NULL"){
+          if(prod.material!=null && regex.test(prod.material)){
             where.push( " c.idMateriaPrima =" + prod.material + "");
           }
 
-          if(prod.sucursal!="NULL"){
+          if(prod.sucursal!=null && regex.test(prod.sucursal)){
             where.push( " d.idSucursal =" + prod.sucursal + "");
           }
   
@@ -99,7 +101,7 @@ export const SelectRecordDetProductos = async (req: Request, resp: Response) => 
           }); 
           
           consulta = consulta + " ORDER BY a.idProducto, b.idDetProducto ";
-          console.log(consulta);
+          
       }
       try {
           const result = await db.querySelect(consulta);
@@ -121,7 +123,7 @@ export const SelectRecordDetProductos = async (req: Request, resp: Response) => 
                     descripcionProducto : det.descripcionProducto,
                     fechaProduccion: det.fechaProduccion,
                     imagenProducto: det.imagenProducto,
-                    precio: det.precio,
+                    precio: det.precioprod,
                     fkSucursal: det.fkSucursal,
                     loginCrea: det.loginCrea,    
                     marcaProducto: det.marcaProducto,
@@ -176,7 +178,8 @@ export const SelectRecordDetProductos = async (req: Request, resp: Response) => 
                         fkProducto: det.fkProducto,
                         Materia: material,
                         cantidad: det.cantidad,
-                        unidad: det.cantidad
+                        unidad: det.cantidad,
+                        precio: det.preciodetprod
                     });
                 }               
 
@@ -195,7 +198,7 @@ export const SelectRecordDetProductos = async (req: Request, resp: Response) => 
                 }
             }
 
-
+            //console.log(detProductosConMateriales);
             return resp.status(201).json(detProductosConMateriales);
           }
           return resp.status(402).json({ msg: "No Data!" });
@@ -211,7 +214,7 @@ export const createRecordProducto = async (req: Request, resp: Response) => {
     try {
         const result = await db.querySelect("INSERT INTO tbproductos SET ?", [newPost]);    
         newPost.idProducto = result.insertId;
-        return resp.status(201).json(newPost.idProducto);
+        return resp.status(201).json(newPost);
 
     } catch(error) {
         console.log(error);

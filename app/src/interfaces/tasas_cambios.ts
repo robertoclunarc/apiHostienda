@@ -8,6 +8,6 @@ export interface ITasaCambio{
 }
 
 export interface ItasaCambioMoneda{
-    tasa: ITasaCambio;
-    modeda: IMoneda;
+    tasa?: ITasaCambio;
+    moneda?: IMoneda;
 }
